@@ -1,0 +1,20 @@
+# dsh-deepseek-peak-indicator bundle patch
+#
+# This file is the `dsh.bundle.patch` layer of the published npm package: when
+# the plugin is installed through the official CLI —
+#
+#   dsh plugin --profile web add dsh-deepseek-peak-indicator@<version>
+#
+# — the command reconciles `dsh.profile.bundles` against installed packages
+# and, seeing this declaration, appends `dsh-deepseek-peak-indicator` to the
+# bundle stack. Profile boot then merges THIS patch (a single `insert` of the
+# plugin row) and the client-modules host discovers the package's
+# `dsh.client` declaration from the loaded entry, serving the browser half at
+# /plugins/dsh-deepseek-peak-indicator/client.js.
+#
+# The row's `name` MUST equal the package name: client-modules resolves the
+# loader entry name to the package.json that carries the `dsh.client`
+# declaration.
+- insert:
+    - id: deepseek-peak-indicator
+      name: 'dsh-deepseek-peak-indicator'

@@ -1,0 +1,66 @@
+{
+  "name": "dsh-deepseek-peak-indicator",
+  "version": "0.6.0",
+  "description": "DSH web plugin: a green/red status dot left of the composer model select showing whether DeepSeek API is currently in official peak time (red) or off-peak (green). Click for a live dashboard: countdown, 24h day track, stat tiles.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "default": "./lib/client.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE",
+    "docs"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node test/schedule.test.cjs",
+    "check": "node --check lib/client.js && node --check lib/index.js"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime"
+      ],
+      "platform": "web"
+    }
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek",
+    "peak",
+    "off-peak",
+    "status",
+    "indicator"
+  ],
+  "author": {
+    "name": "Petar Jorga",
+    "email": "petar.jorga@dda-digitalisiert.at"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DDA-DIGITAL/dsh-deepseek-peak-indicator.git"
+  },
+  "homepage": "https://github.com/DDA-DIGITAL/dsh-deepseek-peak-indicator",
+  "bugs": {
+    "url": "https://github.com/DDA-DIGITAL/dsh-deepseek-peak-indicator/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -21,17 +21,22 @@ Hovering the dot shows the current tier, when the next transition happens (in yo
 
 - a **mode pill** (`● PEAK` / `● OFF-PEAK`) with a mode-tinted hairline accent,
 - a **countdown card** — "Time remaining" with a live 32px tabular countdown (ticking every second; amber pulse in the final minute) and a caption for the next transition,
+- a **live token-cost card** — V4.1 Flash rates (¥ / 1M tokens, with a ¥/$ switch) for cached input, input and output, off-peak vs peak side by side — the **currently active rates are highlighted**, so you see what tokens cost right now,
 - a **24-hour day track** — a seamless red/green gradient of peak/off-peak hours in *your* local time, with a **"now" marker** (ring + line) aligned to exact hour ticks and a summary line,
 - **stat tiles** — "In this mode" (elapsed + since) and "Next" (relative + absolute time),
 - a compact two-line schedule footnote.
 
 The panel closes on outside click, `Escape`, or the close button; **Tab cycles** the panel's controls while open. It flips to the new mode automatically at a window boundary. Motion (panel entrance, pill pop, marker glide) respects `prefers-reduced-motion`, and the styles use the host theme's tokens so the panel matches light and dark themes.
 
-The tier follows the official DeepSeek schedule — [Models & Pricing](https://api-docs.deepseek.com/quick_start/pricing) — plus the peak/off-peak billing notice effective 00:00 Beijing time on **2026-08-23**:
+The tier follows the official DeepSeek schedule — [Models & Pricing](https://api-docs.deepseek.com/quick_start/pricing) — plus the peak/off-peak billing notices:
 
-> Weekdays (Monday to Friday, Beijing Time): the existing peak/off-peak tiered pricing remains in effect. Weekends (Saturday and Sunday, Beijing Time): the peak/off-peak time divisions no longer apply — all calls are charged uniformly at the off-peak rate.
+> **2026-08-23** — Weekends (Saturday and Sunday, Beijing Time): the peak/off-peak time divisions no longer apply — all calls are charged uniformly at the off-peak rate.
+>
+> **2026-09-10** — V4.1 Flash: per 1M tokens — input (cache hit) ¥0.02, input (cache miss) ¥1, output ¥4 off-peak; **peak = exactly 2×** (¥0.04 / ¥2 / ¥8). V4 Pro requests are routed to V4.1 Flash until V4.1 Pro ships. Peak hours are Mon–Fri (Beijing) 09:00–12:00 & 14:00–18:00.
 
 So in Beijing time: **peak = 09:00–12:00 and 14:00–18:00, Mon–Fri** (01:00–04:00 and 06:00–10:00 UTC); **weekends are off-peak all day**. The day-of-week check is evaluated on the **Beijing wall clock**, exactly as the billing rule states. The indicator is computed from the local clock, so it works offline and flips exactly at the boundary (refreshed every 30s; per-second while the panel is open).
+
+> **Currency note** — the cost card defaults to the official CNY table; the USD view is an approximation (`CNY ÷ 7.0`) until DeepSeek publishes official USD rates for V4.1 Flash. When rates change, update `RATES_YUAN` / `USD_PER_YUAN` in `lib/client.js` (the single source of truth).
 
 ## Install
 

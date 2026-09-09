@@ -177,5 +177,36 @@ if (tz === "Asia/Shanghai") {
 	]);
 }
 
+// --- token rates -----------------------------------------------------------
+const USD_PER_YUAN = 7.0;
+const RATES_YUAN = {
+	cacheHit: { off: 0.02, peak: 0.04 },
+	input: { off: 1, peak: 2 },
+	output: { off: 4, peak: 8 },
+};
+
+function formatAmount(value, decimals) {
+	return value.toFixed(decimals).replace(/\.?0+$/, "");
+}
+
+function ratePair(usd) {
+	const pick = (row) => {
+		const y = RATES_YUAN[row.key];
+		if (!usd) return { off: y.off, peak: y.peak, dec: 2 };
+		return { off: y.off / USD_PER_YUAN, peak: y.peak / USD_PER_YUAN, dec: 3 };
+	};
+	return Object.entries(RATES_YUAN).map(([key, y]) => ({ key, ...pick({ key, ...y }) }));
+}
+
+check("CNY format 0.02", formatAmount(0.02, 2), "0.02");
+check("CNY format 1", formatAmount(1, 2), "1");
+check("CNY format 4", formatAmount(4, 2), "4");
+check("CNY peak = 2x cache-hit", ratePair(false)[0].peak, 0.04);
+check("CNY output off", ratePair(false)[2].off, 4);
+check("USD cache-hit off derived", formatAmount(ratePair(true)[0].off, 3), "0.003");
+check("USD input off derived", formatAmount(ratePair(true)[1].off, 3), "0.143");
+check("USD output off derived", formatAmount(ratePair(true)[2].off, 3), "0.571");
+
+
 console.log(`\n${passed} passed, ${failed} failed (TZ=${tz})`);
 process.exit(failed === 0 ? 0 : 1);

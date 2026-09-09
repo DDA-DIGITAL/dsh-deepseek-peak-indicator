@@ -1,6 +1,6 @@
 {
   "name": "dsh-deepseek-peak-indicator",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "DSH web plugin: a green/red status dot left of the composer model select showing whether DeepSeek API is currently in official peak time (red) or off-peak (green). Click for a live dashboard: countdown, 24h day track, live V4.1 Flash token costs, stat tiles.",
   "type": "module",
   "main": "lib/index.js",

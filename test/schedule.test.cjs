@@ -178,35 +178,58 @@ if (tz === "Asia/Shanghai") {
 }
 
 // --- token rates -----------------------------------------------------------
-const USD_PER_YUAN = 7.0;
-const RATES_YUAN = {
+// Both tables are official (they are NOT inter-converted). Peak = 2x off-peak.
+const RATES_CNY = {
 	cacheHit: { off: 0.02, peak: 0.04 },
 	input: { off: 1, peak: 2 },
 	output: { off: 4, peak: 8 },
 };
+const RATES_USD = {
+	cacheHit: { off: 0.003, peak: 0.006 },
+	input: { off: 0.15, peak: 0.3 },
+	output: { off: 0.6, peak: 1.2 },
+};
+const PRO_ROUTED_FROM = Date.UTC(2026, 8, 14, 4, 0, 0);
+const COST_ROWS = [
+	{ key: "cacheHit", label: "Cached input" },
+	{ key: "input", label: "Input" },
+	{ key: "output", label: "Output" },
+];
 
 function formatAmount(value, decimals) {
 	return value.toFixed(decimals).replace(/\.?0+$/, "");
 }
 
-function ratePair(usd) {
-	const pick = (row) => {
-		const y = RATES_YUAN[row.key];
-		if (!usd) return { off: y.off, peak: y.peak, dec: 2 };
-		return { off: y.off / USD_PER_YUAN, peak: y.peak / USD_PER_YUAN, dec: 3 };
-	};
-	return Object.entries(RATES_YUAN).map(([key, y]) => ({ key, ...pick({ key, ...y }) }));
+function proBilledSeparately(now) {
+	return now.getTime() < PRO_ROUTED_FROM;
 }
+
+function rateRows(currency) {
+	const table = currency === "usd" ? RATES_USD : RATES_CNY;
+	const decimals = currency === "usd" ? 3 : 2;
+	return COST_ROWS.map((row) => ({ ...row, off: table[row.key].off, peak: table[row.key].peak, decimals }));
+}
+
+const cny = rateRows("cny");
+const usd = rateRows("usd");
 
 check("CNY format 0.02", formatAmount(0.02, 2), "0.02");
 check("CNY format 1", formatAmount(1, 2), "1");
 check("CNY format 4", formatAmount(4, 2), "4");
-check("CNY peak = 2x cache-hit", ratePair(false)[0].peak, 0.04);
-check("CNY output off", ratePair(false)[2].off, 4);
-check("USD cache-hit off derived", formatAmount(ratePair(true)[0].off, 3), "0.003");
-check("USD input off derived", formatAmount(ratePair(true)[1].off, 3), "0.143");
-check("USD output off derived", formatAmount(ratePair(true)[2].off, 3), "0.571");
+check("CNY cache-hit off/peak", [cny[0].off, cny[0].peak], [0.02, 0.04]);
+check("CNY input off/peak", [cny[1].off, cny[1].peak], [1, 2]);
+check("CNY output off/peak", [cny[2].off, cny[2].peak], [4, 8]);
 
+// Official USD (this replaced a CNY/7 approximation that showed 0.143 / 0.571)
+check("USD cache-hit off/peak", [formatAmount(usd[0].off, 3), formatAmount(usd[0].peak, 3)], ["0.003", "0.006"]);
+check("USD input off/peak", [formatAmount(usd[1].off, 3), formatAmount(usd[1].peak, 3)], ["0.15", "0.3"]);
+check("USD output off/peak", [formatAmount(usd[2].off, 3), formatAmount(usd[2].peak, 3)], ["0.6", "1.2"]);
+check("USD is not derived from CNY (input)", usd[1].off !== Number((1 / 7).toFixed(3)), true);
+
+// V4 Pro routing note window (12:00 Beijing on 2026-09-14 = 04:00 UTC)
+check("Pro separate before switch", proBilledSeparately(new Date("2026-09-14T03:59:59Z")), true);
+check("Pro routed at switch", proBilledSeparately(new Date("2026-09-14T04:00:00Z")), false);
+check("Pro routed the day after", proBilledSeparately(new Date("2026-09-15T00:00:00Z")), false);
 
 console.log(`\n${passed} passed, ${failed} failed (TZ=${tz})`);
 process.exit(failed === 0 ? 0 : 1);

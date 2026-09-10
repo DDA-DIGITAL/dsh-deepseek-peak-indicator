@@ -21,7 +21,7 @@ Hovering the dot shows the current tier, when the next transition happens (in yo
 
 - a **mode pill** (`● PEAK` / `● OFF-PEAK`) with a mode-tinted hairline accent,
 - a **countdown card** — "Time remaining" with a live 32px tabular countdown (ticking every second; amber pulse in the final minute) and a caption for the next transition,
-- a **live token-cost card** — V4.1 Flash rates (¥ / 1M tokens, with a ¥/$ switch) for cached input, input and output, off-peak vs peak side by side — the **currently active rates are highlighted**, so you see what tokens cost right now,
+- a **live token-cost card** — V4.1 Flash rates (per 1M tokens, with a **元/$ switch**) for cached input, input and output, off-peak vs peak side by side — the **currently active rates are highlighted**, so you see what tokens cost right now,
 - a **24-hour day track** — a seamless red/green gradient of peak/off-peak hours in *your* local time, with a **"now" marker** (ring + line) aligned to exact hour ticks and a summary line,
 - **stat tiles** — "In this mode" (elapsed + since) and "Next" (relative + absolute time),
 - a compact two-line schedule footnote.
@@ -32,11 +32,19 @@ The tier follows the official DeepSeek schedule — [Models & Pricing](https://a
 
 > **2026-08-23** — Weekends (Saturday and Sunday, Beijing Time): the peak/off-peak time divisions no longer apply — all calls are charged uniformly at the off-peak rate.
 >
-> **2026-09-10** — V4.1 Flash: per 1M tokens — input (cache hit) ¥0.02, input (cache miss) ¥1, output ¥4 off-peak; **peak = exactly 2×** (¥0.04 / ¥2 / ¥8). V4 Pro requests are routed to V4.1 Flash until V4.1 Pro ships. Peak hours are Mon–Fri (Beijing) 09:00–12:00 & 14:00–18:00.
+> **2026-09-10** — V4.1 Flash pricing takes effect (04:00 UTC). From **12:00 Beijing on 2026-09-14** (04:00 UTC), V4 Pro requests are routed to V4.1 Flash and billed at Flash rates; before that, Pro keeps its own unchanged pricing. The legacy model names `deepseek-v4-flash` and `deepseek-v4-flash-vision-exp` are retired and served as V4.1 Flash at Flash prices.
+
+Cost card rates (per 1M tokens, peak = exactly 2× off-peak — both tables are official and never inter-converted):
+
+| V4.1 Flash | off-peak | peak |
+| --- | --- | --- |
+| input, cache hit | 元0.02 · $0.003 | 元0.04 · $0.006 |
+| input, cache miss | 元1 · $0.15 | 元2 · $0.30 |
+| output | 元4 · $0.60 | 元8 · $1.20 |
 
 So in Beijing time: **peak = 09:00–12:00 and 14:00–18:00, Mon–Fri** (01:00–04:00 and 06:00–10:00 UTC); **weekends are off-peak all day**. The day-of-week check is evaluated on the **Beijing wall clock**, exactly as the billing rule states. The indicator is computed from the local clock, so it works offline and flips exactly at the boundary (refreshed every 30s; per-second while the panel is open).
 
-> **Currency note** — the cost card defaults to the official CNY table; the USD view is an approximation (`CNY ÷ 7.0`) until DeepSeek publishes official USD rates for V4.1 Flash. When rates change, update `RATES_YUAN` / `USD_PER_YUAN` in `lib/client.js` (the single source of truth).
+> **Maintenance note** — when DeepSeek changes prices, update `RATES_CNY` / `RATES_USD` in `lib/client.js` (they are the single source of truth). While V4 Pro is still separately priced, the card shows a short auto-expiring note; it disappears by itself once Pro is routed to Flash (`PRO_ROUTED_FROM`).
 
 ## Install
 
